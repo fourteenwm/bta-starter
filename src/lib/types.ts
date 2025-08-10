@@ -32,6 +32,7 @@ export interface SearchTermMetric {
   searchTerm: string
   keywordText?: string
   campaign: string
+  campaignId: string
   adGroup: string
   impr: number
   clicks: number

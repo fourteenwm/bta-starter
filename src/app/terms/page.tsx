@@ -6,6 +6,7 @@ import { formatCurrency, formatNumber, formatPercent } from '@/lib/utils'
 import type { SearchTermMetric, TabData } from '@/lib/types'
 import { calculateAllSearchTermMetrics, type CalculatedSearchTermMetric } from '@/lib/metrics'
 import { usePagination, DOTS } from '@/hooks/use-pagination';
+import { CampaignSelect } from '@/components/CampaignSelect'
 import {
     Table,
     TableBody,
@@ -32,10 +33,11 @@ type SortDirection = 'asc' | 'desc'
 const PAGE_SIZE = 20; // Show 20 items per page
 
 export default function TermsPage() {
-    const { settings, fetchedData, dataError, isDataLoading } = useSettings()
+    const { settings, fetchedData, dataError, isDataLoading, campaigns } = useSettings()
     const [sortField, setSortField] = useState<SortField>('cost')
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedCampaignId, setSelectedCampaignId] = useState<string>('')
 
 
     // --- Hooks called unconditionally at the top --- 
@@ -43,8 +45,12 @@ export default function TermsPage() {
 
     // Calculate derived metrics for all terms using useMemo
     const calculatedSearchTerms = useMemo(() => {
-        return calculateAllSearchTermMetrics(searchTermsRaw)
-    }, [searchTermsRaw])
+        const allMetrics = calculateAllSearchTermMetrics(searchTermsRaw)
+        if (!selectedCampaignId) {
+            return allMetrics
+        }
+        return allMetrics.filter(term => term.campaignId === selectedCampaignId)
+    }, [searchTermsRaw, selectedCampaignId])
 
     // Sort data (now using calculated terms)
     const sortedTerms = useMemo(() => {
@@ -118,7 +124,18 @@ export default function TermsPage() {
 
     return (
         <div className="container mx-auto px-4 py-12 mt-16">
-            <h1 className="text-3xl font-bold mb-12 text-gray-900">Search Terms</h1>
+            <h1 className="text-3xl font-bold mb-8 text-gray-900">Search Terms</h1>
+
+            <div className="mb-8 w-1/3">
+                <CampaignSelect
+                    campaigns={campaigns || []}
+                    selectedId={selectedCampaignId}
+                    onSelect={(id) => {
+                        setSelectedCampaignId(id)
+                        setCurrentPage(1)
+                    }}
+                />
+            </div>
 
             <div className="rounded-md border">
                 <Table>

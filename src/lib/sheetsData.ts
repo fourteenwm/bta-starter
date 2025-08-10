@@ -20,6 +20,7 @@ async function fetchAndParseSearchTerms(sheetUrl: string): Promise<SearchTermMet
       searchTerm: String(row['searchTerm'] || ''),
       keywordText: String(row['keywordText'] || ''),
       campaign: String(row['campaign'] || ''),
+      campaignId: '', // Will be populated later
       adGroup: String(row['adGroup'] || ''),
       impr: Number(row['impr'] || 0),
       clicks: Number(row['clicks'] || 0),
@@ -69,9 +70,23 @@ export async function fetchAllTabsData(sheetUrl: string = DEFAULT_WEB_APP_URL): 
     fetchAndParseSearchTerms(sheetUrl)
   ]);
 
+  // Create a map from campaign name to campaign ID from the daily data
+  const campaignNameToIdMap = new Map<string, string>();
+  dailyData.forEach(metric => {
+    if (metric.campaign && metric.campaignId && !campaignNameToIdMap.has(metric.campaign)) {
+      campaignNameToIdMap.set(metric.campaign, metric.campaignId);
+    }
+  });
+
+  // Populate campaignId in searchTermsData using the map
+  const updatedSearchTermsData = searchTermsData.map(term => ({
+    ...term,
+    campaignId: campaignNameToIdMap.get(term.campaign) || ''
+  }));
+
   return {
     daily: dailyData || [],
-    searchTerms: searchTermsData || [],
+    searchTerms: updatedSearchTermsData || [],
   } as TabData;
 }
 
