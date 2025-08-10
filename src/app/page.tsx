@@ -179,8 +179,8 @@ export default function DashboardPage() {
 function DashboardLayout({ children, error }: { children: React.ReactNode, error?: string }) {
     return (
         <div className="container mx-auto px-4 py-12 mt-16">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Build the Agent - Cohort 3 Starter Agent</h1>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-900">Test Agent - Campaign Data & Search Terms</h1>
             </div>
             {error && <div className="text-red-500 mb-4">{error}</div>}
             {children}
